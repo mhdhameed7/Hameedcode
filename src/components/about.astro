@@ -1,0 +1,75 @@
+---
+import TextType from "../React/TextType.tsx";
+---
+<section id="about" class="py-12 border-t border-[#ffffff10] text-[var(--white)]">
+  <div class="max-w-5xl mx-auto">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+
+      <!-- Left: Photo Card -->
+      <div class="flex justify-center">
+        <div class="relative group">
+          <!-- Card -->
+          <div class="rounded-2xl overflow-hidden border border-[#ffffff15] bg-[#0f0f0f] shadow-2xl w-[280px]">
+            <img
+              src="/prince.png"
+              alt="Hameed"
+              class="w-full h-[340px] object-cover object-top"
+            />
+            <!-- Name label -->
+            <div class="py-4 text-center border-t border-[#ffffff10]">
+              <p class="text-[var(--white)] text-lg" style="font-family: 'Brush Script MT', cursive; letter-spacing: 0.04em;">
+               
+              </p>
+            </div>
+          </div>
+          <!-- Glow -->
+          <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 w-3/4 h-6 rounded-full blur-xl bg-[var(--sec)] opacity-20"></div>
+        </div>
+      </div>
+
+      <!-- Right: About Text -->
+      <div class="flex flex-col gap-5">
+        <!-- Label -->
+        <p class="text-xs tracking-[0.2em] uppercase text-[var(--sec)] font-semibold">Get To Know Me</p>
+
+        <!-- Heading with cursor -->
+        <h2 class="text-4xl md:text-5xl font-bold text-[var(--white)] leading-tight h-[48px] md:h-[60px] flex items-center">
+          <TextType
+            client:load
+            text="About Myself"
+            typingSpeed={75}
+            pauseDuration={1500}
+            showCursor={true}
+            cursorCharacter="|"
+            startOnVisible={true}
+            cursorClassName="text-[var(--sec)] font-light"
+          />
+        </h2>
+
+        <!-- Bio paragraphs -->
+        <div class="flex flex-col gap-4 text-[var(--white-icon)] text-sm md:text-base leading-relaxed">
+          <p>
+            I am passionate about technology and software development. While I initially considered pursuing a career in the medical field, my interests gradually shifted toward computers and programming as I explored the world of technology.
+          </p>
+          <p>
+            As I learned more about coding, I discovered how much I enjoy building applications, solving problems, and understanding how software works behind the scenes. This curiosity has grown into a strong passion for programming and <strong class="text-[var(--white)]">artificial intelligence</strong>.
+          </p>
+          <p>
+            I believe in continuous learning and enjoy taking on new challenges through personal projects and hands-on experience. My goal is to build a successful career in software development, creating innovative applications that solve real-world problems.
+          </p>
+        </div>
+
+        <!-- Traits -->
+        <div class="flex items-center gap-3 pt-2">
+          {["Driven", "Curious", "Creative"].map((trait, i) => (
+            <span class="flex items-center gap-3">
+              <span class="text-xs tracking-[0.18em] uppercase text-[var(--white-icon)] font-medium">{trait}</span>
+              {i < 2 && <span class="text-[var(--sec)] text-xs">•</span>}
+            </span>
+          ))}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
