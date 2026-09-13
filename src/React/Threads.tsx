@@ -120,8 +120,16 @@ void main() {
 }
 `;
 
-const Threads = ({ color = [1, 1, 1], amplitude = 1, distance = 0, enableMouseInteraction = false, ...rest }) => {
-  const containerRef = useRef(null);
+interface ThreadsProps {
+  color?: [number, number, number];
+  amplitude?: number;
+  distance?: number;
+  enableMouseInteraction?: boolean;
+  [key: string]: any;
+}
+
+const Threads = ({ color = [1, 1, 1], amplitude = 1, distance = 0, enableMouseInteraction = false, ...rest }: ThreadsProps) => {
+  const containerRef = useRef<HTMLDivElement>(null);
   const animationFrameId = useRef(0);
 
   const propsRef = useRef({ color, amplitude, distance, enableMouseInteraction });
@@ -158,7 +166,8 @@ const Threads = ({ color = [1, 1, 1], amplitude = 1, distance = 0, enableMouseIn
 
     const MAX_RENDER_DIM = 1920;
     function resize() {
-      const { clientWidth, clientHeight } = container;
+      if (!containerRef.current) return;
+      const { clientWidth, clientHeight } = containerRef.current;
       const baseDpr = Math.min(window.devicePixelRatio || 1, 2);
       const longestSide = Math.max(clientWidth, clientHeight) * baseDpr;
       const dpr = longestSide > MAX_RENDER_DIM ? (baseDpr * MAX_RENDER_DIM) / longestSide : baseDpr;
@@ -177,8 +186,9 @@ const Threads = ({ color = [1, 1, 1], amplitude = 1, distance = 0, enableMouseIn
     const currentMouse = [0.5, 0.5];
     let targetMouse = [0.5, 0.5];
 
-    function handleMouseMove(e) {
-      const rect = container.getBoundingClientRect();
+    function handleMouseMove(e: any) {
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width;
       const y = 1.0 - (e.clientY - rect.top) / rect.height;
       targetMouse = [x, y];
@@ -198,7 +208,7 @@ const Threads = ({ color = [1, 1, 1], amplitude = 1, distance = 0, enableMouseIn
     );
     intersectionObserver.observe(container);
 
-    function update(t) {
+    function update(t: number) {
       animationFrameId.current = requestAnimationFrame(update);
       if (!isVisible || document.hidden) return;
 

@@ -6,6 +6,22 @@ import { useGSAP } from '@gsap/react';
 
 gsap.registerPlugin(ScrollTrigger, GSAPSplitText, useGSAP);
 
+interface SplitTextProps {
+  text: string;
+  className?: string;
+  delay?: number;
+  duration?: number;
+  ease?: string;
+  splitType?: string;
+  from?: { opacity: number; y: number; [key: string]: any };
+  to?: { opacity: number; y: number; [key: string]: any };
+  threshold?: number;
+  rootMargin?: string;
+  textAlign?: string;
+  tag?: string;
+  onLetterAnimationComplete?: () => void;
+}
+
 const SplitText = ({
   text,
   className = '',
@@ -20,8 +36,8 @@ const SplitText = ({
   textAlign = 'center',
   tag = 'p',
   onLetterAnimationComplete
-}) => {
-  const ref = useRef(null);
+}: SplitTextProps) => {
+  const ref = useRef<HTMLElement>(null);
   const animationCompletedRef = useRef(false);
   const onCompleteRef = useRef(onLetterAnimationComplete);
   const [fontsLoaded, setFontsLoaded] = useState(false);
@@ -46,7 +62,7 @@ const SplitText = ({
       if (!ref.current || !text || !fontsLoaded) return;
       // Prevent re-animation if already completed
       if (animationCompletedRef.current) return;
-      const el = ref.current;
+      const el = ref.current as HTMLElement & { _rbsplitInstance?: any };
 
       if (el._rbsplitInstance) {
         try {
@@ -69,12 +85,12 @@ const SplitText = ({
             : `+=${marginValue}${marginUnit}`;
       const start = `top ${startPct}%${sign}`;
 
-      let targets;
-      const assignTargets = self => {
+      let targets: any[] = [];
+      const assignTargets = (self: any) => {
         if (splitType.includes('chars') && self.chars.length) targets = self.chars;
-        if (!targets && splitType.includes('words') && self.words.length) targets = self.words;
-        if (!targets && splitType.includes('lines') && self.lines.length) targets = self.lines;
-        if (!targets) targets = self.chars || self.words || self.lines;
+        if (!targets.length && splitType.includes('words') && self.words.length) targets = self.words;
+        if (!targets.length && splitType.includes('lines') && self.lines.length) targets = self.lines;
+        if (!targets.length) targets = self.chars || self.words || self.lines;
       };
 
       const splitInstance = new GSAPSplitText(el, {
@@ -85,7 +101,7 @@ const SplitText = ({
         wordsClass: 'split-word',
         charsClass: 'split-char',
         reduceWhiteSpace: false,
-        onSplit: self => {
+        onSplit: (self: any) => {
           assignTargets(self);
           const tween = gsap.fromTo(
             targets,
@@ -125,7 +141,7 @@ const SplitText = ({
         } catch (_) {
           /* noop */
         }
-        el._rbsplitInstance = null;
+        (el as any)._rbsplitInstance = null;
       };
     },
     {
@@ -155,10 +171,10 @@ const SplitText = ({
       willChange: 'transform, opacity'
     };
     const classes = `split-parent ${className}`;
-    const Tag = tag || 'p';
+    const Tag = tag as any;
 
     return (
-      <Tag ref={ref} style={style} className={classes}>
+      <Tag ref={ref} style={style as React.CSSProperties} className={classes}>
         {text}
       </Tag>
     );
