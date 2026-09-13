@@ -1,65 +1,43 @@
-import React, { useState, useEffect } from "react";
-import { doc, onSnapshot, updateDoc, increment } from "firebase/firestore";
-import { db } from "../firebase";
+import { useState, useEffect } from "react";
 
 const LikeButton = () => {
-  const [likes, setLikes] = useState(0);
+  const [likes, setLikes] = useState(89);
   const [isLiked, setIsLiked] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
 
     const storedIsLiked = localStorage.getItem("websiteIsLiked");
-    if (storedIsLiked) {
-      setIsLiked(storedIsLiked === "true");
+    const storedLikes = localStorage.getItem("websiteLikesCount");
+
+    if (storedLikes) {
+      setLikes(parseInt(storedLikes, 10));
+    } else {
+      localStorage.setItem("websiteLikesCount", "89");
     }
 
-    // Listen for realtime updates from Firestore
-    const likeDocRef = doc(db, "likes", "counter");
-    const unsubscribe = onSnapshot(likeDocRef, (docSnap) => {
-      if (docSnap.exists()) {
-        const currentLikes = docSnap.data().likes;
-        // Only update if the server value is different (prevents overwrite during optimistic update)
-        setLikes((prev) => {
-          const newLikes = Math.max(0, currentLikes);
-          return newLikes;
-        });
-      }
-    });
-
-    return () => unsubscribe();
+    if (storedIsLiked === "true") {
+      setIsLiked(true);
+    }
   }, []);
 
-  const handleLike = async () => {
-    if (isProcessing || isLiked) return;
-
-    // Optimistic Update
-    const previousLikes = likes;
-    setLikes((prev) => prev + 1);
-    setIsLiked(true);
-    setIsAnimating(true);
-    localStorage.setItem("websiteIsLiked", "true");
-
-    // Reset animation after it finishes
-    setTimeout(() => setIsAnimating(false), 600);
-
-    try {
-      setIsProcessing(true);
-      const likeDocRef = doc(db, "likes", "counter");
-      await updateDoc(likeDocRef, {
-        likes: increment(1),
-      });
-    } catch (error) {
-      console.error("Error updating likes:", error);
-      // Rollback on error
-      setLikes(previousLikes);
+  const handleLike = () => {
+    if (isLiked) {
+      const newLikes = likes - 1;
+      setLikes(newLikes);
       setIsLiked(false);
-      localStorage.removeItem("websiteIsLiked");
-    } finally {
-      setIsProcessing(false);
+      localStorage.setItem("websiteIsLiked", "false");
+      localStorage.setItem("websiteLikesCount", newLikes.toString());
+    } else {
+      const newLikes = likes + 1;
+      setLikes(newLikes);
+      setIsLiked(true);
+      setIsAnimating(true);
+      localStorage.setItem("websiteIsLiked", "true");
+      localStorage.setItem("websiteLikesCount", newLikes.toString());
+      setTimeout(() => setIsAnimating(false), 600);
     }
   };
 
@@ -73,7 +51,6 @@ const LikeButton = () => {
     <div className="flex items-center">
       <button
         onClick={handleLike}
-        disabled={isProcessing || isLiked}
         className={`
           group relative w-40 h-10 flex items-center justify-center p-3
           rounded-full transition-all duration-300 ease-in-out transform border-2 ${borderColorClass}
